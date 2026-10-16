@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}Evaluation - Placement Prediction System{% endblock %}
+
+{% block content %}
+<style>
+    .eval-container {
+        max-width: 1200px;
+        margin: 0 auto 60px auto;
+        padding: 0 1rem;
+    }
+
+    .eval-header {
+        margin-bottom: 2rem;
+    }
+
+    .eval-header h2 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 0.5rem;
+    }
+
+    .eval-header p {
+        color: #64748b;
+        font-size: 1.05rem;
+    }
+
+    .eval-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .eval-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 1.75rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    }
+
+    .eval-card h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Confusion Matrix Visual */
+    .cm-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+        text-align: center;
+    }
+
+    .cm-table th, .cm-table td {
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+        font-weight: 600;
+    }
+
+    .cm-header {
+        background: #f8fafc;
+        color: #475569;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+    }
+
+    .cm-tp {
+        background: #dcfce7;
+        color: #166534;
+        font-size: 1.4rem;
+        font-weight: 800;
+    }
+
+    .cm-tn {
+        background: #e0e7ff;
+        color: #3730a3;
+        font-size: 1.4rem;
+        font-weight: 800;
+    }
+
+    .cm-fp, .cm-fn {
+        background: #fee2e2;
+        color: #991b1b;
+        font-size: 1.4rem;
+        font-weight: 800;
+    }
+
+    /* Feature Importance Bar */
+    .feature-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        gap: 12px;
+    }
+
+    .feature-name {
+        width: 150px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #334155;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .feature-bar-wrap {
+        flex: 1;
+        height: 12px;
+        background: #f1f5f9;
+        border-radius: 9999px;
+        overflow: hidden;
+    }
+
+    .feature-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4f46e5, #06b6d4);
+        border-radius: 9999px;
+    }
+
+    .feature-val {
+        width: 45px;
+        text-align: right;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #64748b;
+    }
+</style>
+
+<div class="eval-container">
+    <div class="eval-header">
+        <h2>Model Evaluation & Diagnostics</h2>
+        <p>Comprehensive performance analysis on the independent test dataset (10,000 samples).</p>
+    </div>
+
+    <div class="eval-grid">
+        <!-- Confusion Matrix -->
+        <div class="eval-card">
+            <h3>🎯 Confusion Matrix (Classification)</h3>
+            <p style="font-size: 0.85rem; color: #64748b;">Evaluation of Placement Status predictions on 10,000 test cases.</p>
+            
+            <table class="cm-table">
+                <thead>
+                    <tr>
+                        <th class="cm-header">Actual \ Predicted</th>
+                        <th class="cm-header">Predicted Not Placed (0)</th>
+                        <th class="cm-header">Predicted Placed (1)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th class="cm-header">Actual Not Placed (0)</th>
+                        <td class="cm-tn">{{ eval_data.cm[0][0] }}<div style="font-size: 0.75rem; font-weight: normal; color: #4338ca;">True Negative</div></td>
+                        <td class="cm-fp">{{ eval_data.cm[0][1] }}<div style="font-size: 0.75rem; font-weight: normal; color: #b91c1c;">False Positive</div></td>
+                    </tr>
+                    <tr>
+                        <th class="cm-header">Actual Placed (1)</th>
+                        <td class="cm-fn">{{ eval_data.cm[1][0] }}<div style="font-size: 0.75rem; font-weight: normal; color: #b91c1c;">False Negative</div></td>
+                        <td class="cm-tp">{{ eval_data.cm[1][1] }}<div style="font-size: 0.75rem; font-weight: normal; color: #15803d;">True Positive</div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Key Metrics Summary -->
+        <div class="eval-card">
+            <h3>📊 Classification Metrics Breakdown</h3>
+            <p style="font-size: 0.85rem; color: #64748b;">Per-class performance and discrimination capability.</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                <thead>
+                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                        <th style="padding: 10px; text-align: left; font-size: 0.8rem; color: #475569;">Metric</th>
+                        <th style="padding: 10px; text-align: right; font-size: 0.8rem; color: #475569;">Score</th>
+                        <th style="padding: 10px; text-align: left; font-size: 0.8rem; color: #475569;">Interpretation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 10px; font-weight: 700;">Accuracy</td>
+                        <td style="padding: 10px; text-align: right; font-weight: 800; color: #4f46e5;">{{ eval_data.accuracy }}%</td>
+                        <td style="padding: 10px; font-size: 0.85rem; color: #64748b;">Overall correct predictions</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 10px; font-weight: 700;">Precision</td>
+                        <td style="padding: 10px; text-align: right; font-weight: 800; color: #0ea5e9;">{{ eval_data.precision }}%</td>
+                        <td style="padding: 10px; font-size: 0.85rem; color: #64748b;">Few false placement alarms</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 10px; font-weight: 700;">Recall</td>
+                        <td style="padding: 10px; text-align: right; font-weight: 800; color: #f59e0b;">{{ eval_data.recall }}%</td>
+                        <td style="padding: 10px; font-size: 0.85rem; color: #64748b;">Coverage of placed students</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 10px; font-weight: 700;">F1 Score</td>
+                        <td style="padding: 10px; text-align: right; font-weight: 800; color: #10b981;">{{ eval_data.f1 }}%</td>
+                        <td style="padding: 10px; font-size: 0.85rem; color: #64748b;">Harmonic balance score</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; font-weight: 700;">ROC-AUC</td>
+                        <td style="padding: 10px; text-align: right; font-weight: 800; color: #8b5cf6;">{{ eval_data.roc_auc }}%</td>
+                        <td style="padding: 10px; font-size: 0.85rem; color: #64748b;">Discrimination power</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Feature Importance -->
+    <div class="eval-card">
+        <h3>🏆 Top Feature Drivers for Placement</h3>
+        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1.5rem;">Relative influence of attributes in driving placement success.</p>
+
+        <div style="max-width: 800px;">
+            {% for f in eval_data.top_features %}
+            <div class="feature-row">
+                <span class="feature-name" title="{{ f.name }}">{{ f.name }}</span>
+                <div class="feature-bar-wrap">
+                    <div class="feature-bar-fill" style="width: {{ f.pct }}%;"></div>
+                </div>
+                <span class="feature-val">{{ f.pct }}%</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

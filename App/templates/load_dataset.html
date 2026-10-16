@@ -1,32 +1,174 @@
 {% extends "base.html" %}
 
-{% block title %}DataSet - Placement Prediction{% endblock %}
+{% block title %}Dataset - Placement Prediction System{% endblock %}
 
 {% block content %}
-<div class="hero">
-    <h2>DataSet Loading</h2>
-    <p>The placement dataset has been loaded successfully.</p>
+<style>
+    .dataset-container {
+        max-width: 1200px;
+        margin: 0 auto 60px auto;
+        padding: 0 1.5rem;
+    }
 
-    <h2>DataSet Summary</h2>
-    <table border="1" cellpadding="8" cellspacing="0" style="margin-bottom: 30px; text-align: left;">
-        <tr>
-            <th>Total Records</th>
-            <td>{{ summary.rows }}</td>
-        </tr>
-        <tr>
-            <th>Total Columns</th>
-            <td>{{ summary.columns }}</td>
-        </tr>
-        <tr>
-            <th>Target Variable</th>
-            <td>{{ summary.target }}</td>
-        </tr>
-    </table>
+    .page-header {
+        margin-bottom: 2rem;
+    }
 
-    <h2>Data Preview (First 5 Rows)</h2>
-    <!-- The | safe filter tells Jinja to render the pandas HTML table instead of raw text -->
-    <div style="overflow-x: auto; margin-top: 15px;">
-        {{ first_rows | safe }}
+    .page-header h2 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+        margin-bottom: 0.4rem;
+    }
+
+    .page-header p {
+        color: var(--text-muted);
+        font-size: 1.05rem;
+    }
+
+    /* Stat Cards */
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .summary-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-card);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition-base);
+    }
+
+    .summary-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--brand-border);
+    }
+
+    .summary-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 0.08em;
+        margin-bottom: 0.5rem;
+    }
+
+    .summary-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+    }
+
+    /* Table Wrapper */
+    .table-section {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-card);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+    }
+
+    .table-section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--border-subtle);
+        background: #fcfcfd;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .table-section-header h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .table-responsive-box {
+        overflow-x: auto;
+        max-width: 100%;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+    }
+
+    .data-table th {
+        background: #f8fafc;
+        color: var(--text-secondary);
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-subtle);
+        white-space: nowrap;
+    }
+
+    .data-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #f1f5f9;
+        color: var(--text-primary);
+        white-space: nowrap;
+    }
+
+    .data-table tr:hover td {
+        background-color: #f8fafc;
+    }
+</style>
+
+<div class="dataset-container">
+    <div class="page-header">
+        <h2>Placement Dataset Explorer</h2>
+        <p>Verified institutional repository containing academic and behavioral performance records.</p>
+    </div>
+
+    <!-- Summary Metrics -->
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="summary-label">Total Records</div>
+            <div class="summary-value" style="color: #4f46e5;">{{ summary.rows }}</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Total Attributes</div>
+            <div class="summary-value">{{ summary.columns }}</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Primary Target</div>
+            <div class="summary-value" style="font-size: 1.4rem; color: #10b981; line-height: 2.2rem;">{{ summary.target }}</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-label">Secondary Target</div>
+            <div class="summary-value" style="font-size: 1.4rem; color: #0284c7; line-height: 2.2rem;">Salary Package</div>
+        </div>
+    </div>
+
+    <!-- Data Table Preview -->
+    <div class="table-section">
+        <div class="table-section-header">
+            <h3>Sample Data Preview (First 5 Rows)</h3>
+            <span style="font-size: 0.8rem; font-weight: 600; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 9999px;">
+                Displaying 5 of 50,000 instances
+            </span>
+        </div>
+
+        <div class="table-responsive-box">
+            {{ first_rows | safe }}
+        </div>
     </div>
 </div>
 {% endblock %}

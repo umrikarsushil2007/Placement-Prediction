@@ -1,14 +1,240 @@
 {% extends "base.html" %}
 
-{% block title %}Home - Placement Prediction System{% endblock %}
+{% block title %}Home - NextGen Placement AI{% endblock %}
 
 {% block content %}
-<div class="hero">
-    <h1>Placement Prediction System</h1>
-    <h3>Welcome to Machine Learning Projects</h3>
-    <p>
-        This application predicts whether a student is likely to be placed based on their academic performance and skills.
-    </p>
-    <a href="{{ url_for('predict') }}" class="btn">Get Started</a>
+<style>
+    .home-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+    }
+
+    .cta-group {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    /* Workflow Architecture Cards */
+    .section-headline {
+        text-align: center;
+        margin: 4.5rem 0 2.5rem 0;
+    }
+
+    .section-headline h2 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .section-headline p {
+        color: var(--text-muted);
+        font-size: 1.05rem;
+    }
+
+    .workflow-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 4rem;
+    }
+
+    .workflow-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-card);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition-base);
+        position: relative;
+    }
+
+    .workflow-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--brand-border);
+    }
+
+    .step-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: var(--brand-subtle);
+        color: var(--brand-primary);
+        font-weight: 800;
+        font-size: 0.95rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .workflow-card h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .workflow-card p {
+        font-size: 0.92rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* Feature Grid */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+        margin-bottom: 5rem;
+    }
+
+    .feature-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-card);
+        border-radius: var(--radius-lg);
+        padding: 2.25rem;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition-base);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--brand-border);
+    }
+
+    .feature-icon-wrap {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .feature-card h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 0.6rem;
+        color: var(--text-primary);
+    }
+
+    .feature-card p {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin: 0;
+    }
+</style>
+
+<div class="home-wrapper">
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-badge">
+            <span>✨ Machine Learning Career Forecasting</span>
+        </div>
+        <h1>Predict Campus Placement with <span>AI Precision</span></h1>
+        <p>
+            Trained on 50,000 student academic trajectories. Evaluate your placement probability, estimate expected salary packages, and unlock personalized recommendations to guarantee career success.
+        </p>
+        
+        <div class="cta-group">
+            <a href="/prediction" class="btn-primary">
+                <span>⚡</span> Launch Interactive Predictor
+            </a>
+            <a href="/comparison" class="btn-secondary">
+                <span>📊</span> View Model Benchmarks
+            </a>
+        </div>
+
+        <!-- Real-Time Platform Stats -->
+        <div class="hero-stats-row">
+            <div class="hero-stat-item">
+                <div class="hero-stat-val">50,000+</div>
+                <div class="hero-stat-label">Student Records</div>
+            </div>
+            <div class="hero-stat-item">
+                <div class="hero-stat-val" style="color: #4f46e5;">94.2%</div>
+                <div class="hero-stat-label">Prediction Accuracy</div>
+            </div>
+            <div class="hero-stat-item">
+                <div class="hero-stat-val">8 Models</div>
+                <div class="hero-stat-label">Ensemble Evaluated</div>
+            </div>
+            <div class="hero-stat-item">
+                <div class="hero-stat-val" style="color: #10b981;">&lt; 50ms</div>
+                <div class="hero-stat-label">Inference Latency</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How the AI Works Section -->
+    <div class="section-headline">
+        <h2>End-to-End Machine Learning Pipeline</h2>
+        <p>From raw institutional records to production-grade predictive intelligence.</p>
+    </div>
+
+    <div class="workflow-grid">
+        <div class="workflow-card">
+            <div class="step-number">01</div>
+            <h3>Data Ingestion</h3>
+            <p>Processes 32 comprehensive student attributes including 8-semester SGPA, CGPA, coding test scores, aptitude assessments, and certifications.</p>
+        </div>
+
+        <div class="workflow-card">
+            <div class="step-number">02</div>
+            <h3>Feature Engineering</h3>
+            <p>Median imputation handles null entries, robust StandardScaling normalizes continuous scores, and OneHot/Ordinal encoding vectorizes categorical tiers.</p>
+        </div>
+
+        <div class="workflow-card">
+            <div class="step-number">03</div>
+            <h3>Multi-Model Training</h3>
+            <p>Trains classification classifiers (Logistic, Random Forest, AdaBoost, Decision Trees) and salary regression models (Ridge, Lasso, ElasticNet).</p>
+        </div>
+
+        <div class="workflow-card">
+            <div class="step-number">04</div>
+            <h3>Real-Time Inference</h3>
+            <p>Executes instantaneous predictive scoring, generating placement likelihood percentages, expected salary in LPA, and actionable skill gap recommendations.</p>
+        </div>
+    </div>
+
+    <!-- Key Capabilities -->
+    <div class="section-headline">
+        <h2>Built for Students & Placement Cells</h2>
+        <p>Powerful diagnostics to pinpoint exact levers that convert candidates into top-tier hires.</p>
+    </div>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon-wrap">🎯</div>
+            <h3>Instant Placement Probability</h3>
+            <p>Get a calibrated confidence score of getting placed across campus recruitment drives, backed by rigorous cross-validated models.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon-wrap">💰</div>
+            <h3>Salary Package Forecasting</h3>
+            <p>Predict your market compensation in ₹ LPA based on academic tier, technical coding acumen, mock interview rating, and internship projects.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon-wrap">💡</div>
+            <h3>Personalized Profile Insights</h3>
+            <p>Discover whether to invest in more leetcode coding practice, internships, or soft-skill workshops to maximize your competitive offer chances.</p>
+        </div>
+    </div>
 </div>
 {% endblock %}

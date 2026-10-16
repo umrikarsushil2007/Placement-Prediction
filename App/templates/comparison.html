@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Model Comparison - Placement Prediction System{% endblock %}
+
+{% block content %}
+<style>
+    .comp-container {
+        max-width: 1200px;
+        margin: 0 auto 60px auto;
+        padding: 0 1rem;
+    }
+
+    .comp-header {
+        margin-bottom: 2.5rem;
+    }
+
+    .comp-header h2 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 0.5rem;
+    }
+
+    .comp-header p {
+        color: #64748b;
+        font-size: 1.05rem;
+    }
+
+    .table-box {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        margin-bottom: 3rem;
+    }
+
+    .table-box table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-box thead th {
+        background: #f8fafc;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #475569;
+        padding: 1.1rem 1.25rem;
+        border-bottom: 2px solid #e2e8f0;
+        text-align: left;
+    }
+
+    .table-box tbody td {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.95rem;
+    }
+
+    .table-box tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .badge-best {
+        display: inline-block;
+        background: #dcfce7;
+        color: #166534;
+        padding: 3px 10px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 800;
+        margin-left: 8px;
+    }
+
+    .section-title {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+</style>
+
+<div class="comp-container">
+    <div class="comp-header">
+        <h2>Machine Learning Model Benchmarking</h2>
+        <p>Comparative analysis of classification models (Placement Status) and regression models (Salary Package Prediction).</p>
+    </div>
+
+    <!-- Classification Comparison -->
+    <div class="section-title">
+        <span>🎯</span> Classification Models (Placement Status)
+    </div>
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>Algorithm</th>
+                    <th>Accuracy</th>
+                    <th>Precision</th>
+                    <th>Recall</th>
+                    <th>F1 Score</th>
+                    <th>Pros & Characteristics</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for model in cls_comparison %}
+                <tr>
+                    <td style="font-weight: 700; color: #0f172a;">
+                        {{ model.name }}
+                        {% if model.is_best %}<span class="badge-best">TOP PERFORMER</span>{% endif %}
+                    </td>
+                    <td style="font-weight: 700; color: #4f46e5;">{{ model.accuracy }}%</td>
+                    <td>{{ model.precision }}%</td>
+                    <td>{{ model.recall }}%</td>
+                    <td style="font-weight: 700; color: #10b981;">{{ model.f1 }}%</td>
+                    <td style="color: #64748b; font-size: 0.85rem;">{{ model.notes }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Regression Comparison -->
+    <div class="section-title">
+        <span>📈</span> Regression Models (Salary Package Prediction)
+    </div>
+    <div class="table-box">
+        <table>
+            <thead>
+                <tr>
+                    <th>Algorithm</th>
+                    <th>MAE (₹ LPA)</th>
+                    <th>MSE</th>
+                    <th>RMSE (₹ LPA)</th>
+                    <th>R² Score</th>
+                    <th>Regularization Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for model in reg_comparison %}
+                <tr>
+                    <td style="font-weight: 700; color: #0f172a;">
+                        {{ model.name }}
+                        {% if model.is_best %}<span class="badge-best">OPTIMAL FIT</span>{% endif %}
+                    </td>
+                    <td>{{ model.mae }}</td>
+                    <td>{{ model.mse }}</td>
+                    <td style="font-weight: 700; color: #0284c7;">{{ model.rmse }}</td>
+                    <td style="font-weight: 700; color: #059669;">{{ model.r2 }}%</td>
+                    <td style="color: #64748b; font-size: 0.85rem;">{{ model.reg_type }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

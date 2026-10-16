@@ -1,0 +1,446 @@
+{% extends "base.html" %}
+
+{% block title %}Predictor - Placement Prediction System{% endblock %}
+
+{% block content %}
+<style>
+    .pred-container {
+        max-width: 1000px;
+        margin: 0 auto 50px auto;
+        padding: 0 1rem;
+    }
+
+    .pred-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .pred-header h2 {
+        font-size: 2.25rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: #0f172a;
+        margin-bottom: 0.5rem;
+    }
+
+    .pred-header p {
+        color: #64748b;
+        font-size: 1.05rem;
+    }
+
+    .presets-bar {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .preset-btn {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        color: #334155;
+        padding: 8px 16px;
+        border-radius: 9999px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .preset-btn:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+        transform: translateY(-1px);
+    }
+
+    .form-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.04);
+        margin-bottom: 2.5rem;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .form-group label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #1e293b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-group input,
+    .form-group select {
+        padding: 10px 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        color: #0f172a;
+        background: #f8fafc;
+        transition: border-color 0.2s, background 0.2s;
+        outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: #4f46e5;
+        background: #ffffff;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .submit-btn {
+        width: 100%;
+        background: linear-gradient(135deg, #4f46e5, #4338ca);
+        color: white;
+        padding: 14px 28px;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 25px rgba(79, 70, 229, 0.4);
+    }
+
+    /* Result Section */
+    .result-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.06);
+        animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 20px;
+        border-radius: 9999px;
+        font-size: 1.1rem;
+        font-weight: 800;
+    }
+
+    .status-placed {
+        background: #dcfce7;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+    }
+
+    .status-not-placed {
+        background: #fee2e2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+    }
+
+    .salary-box {
+        text-align: right;
+    }
+
+    .salary-label {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .salary-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #059669;
+    }
+
+    .prob-section {
+        margin-bottom: 2rem;
+    }
+
+    .prob-bar-container {
+        height: 16px;
+        background: #e2e8f0;
+        border-radius: 9999px;
+        overflow: hidden;
+        margin-top: 8px;
+    }
+
+    .prob-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #4f46e5, #10b981);
+        border-radius: 9999px;
+        transition: width 1s ease-out;
+    }
+
+    .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .insight-card {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 1.25rem;
+        border-left: 4px solid #4f46e5;
+    }
+
+    .insight-card h4 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-bottom: 0.4rem;
+        color: #0f172a;
+    }
+
+    .insight-card p {
+        font-size: 0.85rem;
+        color: #475569;
+        margin: 0;
+        line-height: 1.5;
+    }
+</style>
+
+<div class="pred-container">
+    <div class="pred-header">
+        <h2>Campus Placement & Salary Predictor</h2>
+        <p>Enter your academic records and skill scores to forecast your placement outcome and expected salary package.</p>
+    </div>
+
+    <!-- Quick Presets -->
+    <div class="presets-bar">
+        <span style="font-size: 0.85rem; font-weight: 600; color: #64748b; align-self: center;">Quick Fill Demo:</span>
+        <button type="button" class="preset-btn" onclick="fillPreset('high')">⭐ High Achiever Profile</button>
+        <button type="button" class="preset-btn" onclick="fillPreset('average')">🎓 Average Profile</button>
+        <button type="button" class="preset-btn" onclick="fillPreset('needs_work')">🌱 Early Stage Profile</button>
+    </div>
+
+    <form method="POST" action="/prediction" class="form-card" id="predictForm">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="cgpa">CGPA (0 - 10)</label>
+                <input type="number" step="0.01" min="0" max="10" name="cgpa" id="cgpa" value="{{ form_data.cgpa or '8.2' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="aptitude">Aptitude Score (0 - 100)</label>
+                <input type="number" min="0" max="100" name="aptitude" id="aptitude" value="{{ form_data.aptitude or '82' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="coding">Coding Test Score (0 - 100)</label>
+                <input type="number" min="0" max="100" name="coding" id="coding" value="{{ form_data.coding or '85' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="soft_skills">Soft Skills Rating (0 - 10)</label>
+                <input type="number" step="0.1" min="0" max="10" name="soft_skills" id="soft_skills" value="{{ form_data.soft_skills or '8.0' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="mock_interview">Mock Interview Score (0 - 100)</label>
+                <input type="number" min="0" max="100" name="mock_interview" id="mock_interview" value="{{ form_data.mock_interview or '78' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="projects">Projects Completed</label>
+                <input type="number" min="0" max="20" name="projects" id="projects" value="{{ form_data.projects or '3' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="internships">Internships</label>
+                <input type="number" min="0" max="10" name="internships" id="internships" value="{{ form_data.internships or '2' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="certifications">Certifications</label>
+                <input type="number" min="0" max="20" name="certifications" id="certifications" value="{{ form_data.certifications or '3' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="stream">Stream / Branch</label>
+                <select name="stream" id="stream">
+                    <option value="CS" {% if form_data.stream == 'CS' or not form_data.stream %}selected{% endif %}>Computer Science (CS)</option>
+                    <option value="IT" {% if form_data.stream == 'IT' %}selected{% endif %}>Information Technology (IT)</option>
+                    <option value="ECE" {% if form_data.stream == 'ECE' %}selected{% endif %}>Electronics & Communication (ECE)</option>
+                    <option value="EE" {% if form_data.stream == 'EE' %}selected{% endif %}>Electrical Engineering (EE)</option>
+                    <option value="Mechanical" {% if form_data.stream == 'Mechanical' %}selected{% endif %}>Mechanical Engineering</option>
+                    <option value="Civil" {% if form_data.stream == 'Civil' %}selected{% endif %}>Civil Engineering</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="specialisation">Specialisation</label>
+                <select name="specialisation" id="specialisation">
+                    <option value="AI" {% if form_data.specialisation == 'AI' or not form_data.specialisation %}selected{% endif %}>Artificial Intelligence</option>
+                    <option value="DataScience" {% if form_data.specialisation == 'DataScience' %}selected{% endif %}>Data Science</option>
+                    <option value="Networking" {% if form_data.specialisation == 'Networking' %}selected{% endif %}>Networking & Security</option>
+                    <option value="Embedded" {% if form_data.specialisation == 'Embedded' %}selected{% endif %}>Embedded Systems</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="college_tier">College Tier</label>
+                <select name="college_tier" id="college_tier">
+                    <option value="Tier 1" {% if form_data.college_tier == 'Tier 1' or not form_data.college_tier %}selected{% endif %}>Tier 1 (Top Institutions / IITs / NITs)</option>
+                    <option value="Tier 2" {% if form_data.college_tier == 'Tier 2' %}selected{% endif %}>Tier 2 (State Universities / Good Colleges)</option>
+                    <option value="Tier 3" {% if form_data.college_tier == 'Tier 3' %}selected{% endif %}>Tier 3 (Regional / Affiliated Colleges)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="backlogs">History of Backlogs</label>
+                <select name="backlogs" id="backlogs">
+                    <option value="No" {% if form_data.backlogs == 'No' or not form_data.backlogs %}selected{% endif %}>No Backlogs</option>
+                    <option value="Yes" {% if form_data.backlogs == 'Yes' %}selected{% endif %}>Yes (Has Backlog History)</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="predictBtn">⚡ Run Placement & Salary Prediction</button>
+    </form>
+
+    {% if prediction_done %}
+    <div class="result-card" id="predictionResult">
+        <div class="result-header">
+            <div>
+                <span class="status-badge {% if is_placed %}status-placed{% else %}status-not-placed{% endif %}">
+                    {% if is_placed %}✅ HIGH PROBABILITY - PLACED{% else %}⚠️ NEEDS PROFILE ENHANCEMENT{% endif %}
+                </span>
+            </div>
+            <div class="salary-box">
+                <div class="salary-label">Estimated Salary Package</div>
+                <div class="salary-value">₹ {{ estimated_salary }} LPA</div>
+            </div>
+        </div>
+
+        <div class="prob-section">
+            <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 0.95rem;">
+                <span>Placement Probability</span>
+                <span style="color: #4f46e5;">{{ probability }}%</span>
+            </div>
+            <div class="prob-bar-container">
+                <div class="prob-bar-fill" style="width: {{ probability }}%;"></div>
+            </div>
+        </div>
+
+        <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 1rem; color: #0f172a;">AI Profile Insights & Next Steps</h3>
+        <div class="insights-grid">
+            <div class="insight-card">
+                <h4>🎯 Academic & Coding Strength</h4>
+                <p>
+                    {% if form_data.cgpa|float >= 8.0 and form_data.coding|int >= 75 %}
+                        Exceptional technical standing. Your CGPA and coding score put you in the top tier for technical screening rounds.
+                    {% elif form_data.cgpa|float >= 7.0 %}
+                        Solid academic baseline. Focus on regular LeetCode/HackerRank practice to boost coding round clearance.
+                    {% else %}
+                        Your CGPA is on the threshold. Prioritize open-source projects and high coding scores to offset academic filtering.
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="insight-card">
+                <h4>💼 Practical Experience</h4>
+                <p>
+                    {% if form_data.internships|int >= 1 and form_data.projects|int >= 2 %}
+                        Strong hands-on experience. Make sure your resume clearly highlights project metrics and technologies used.
+                    {% else %}
+                        Recommend completing at least 1 internship or 2 full-stack deployed projects before campus placement season.
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="insight-card">
+                <h4>🗣️ Interview Readiness</h4>
+                <p>
+                    {% if form_data.mock_interview|int >= 70 and form_data.soft_skills|float >= 7.0 %}
+                        High behavioral and HR interview readiness. Practice system design and situational questions.
+                    {% else %}
+                        Attend mock interviews and technical communication workshops to improve confidence in client-facing rounds.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function fillPreset(type) {
+    if (type === 'high') {
+        document.getElementById('cgpa').value = '8.9';
+        document.getElementById('aptitude').value = '90';
+        document.getElementById('coding').value = '92';
+        document.getElementById('soft_skills').value = '8.5';
+        document.getElementById('mock_interview').value = '88';
+        document.getElementById('projects').value = '4';
+        document.getElementById('internships').value = '2';
+        document.getElementById('certifications').value = '4';
+        document.getElementById('stream').value = 'CS';
+        document.getElementById('specialisation').value = 'AI';
+        document.getElementById('college_tier').value = 'Tier 1';
+        document.getElementById('backlogs').value = 'No';
+    } else if (type === 'average') {
+        document.getElementById('cgpa').value = '7.3';
+        document.getElementById('aptitude').value = '72';
+        document.getElementById('coding').value = '68';
+        document.getElementById('soft_skills').value = '6.8';
+        document.getElementById('mock_interview').value = '65';
+        document.getElementById('projects').value = '2';
+        document.getElementById('internships').value = '1';
+        document.getElementById('certifications').value = '1';
+        document.getElementById('stream').value = 'IT';
+        document.getElementById('specialisation').value = 'DataScience';
+        document.getElementById('college_tier').value = 'Tier 2';
+        document.getElementById('backlogs').value = 'No';
+    } else if (type === 'needs_work') {
+        document.getElementById('cgpa').value = '6.1';
+        document.getElementById('aptitude').value = '50';
+        document.getElementById('coding').value = '45';
+        document.getElementById('soft_skills').value = '5.5';
+        document.getElementById('mock_interview').value = '50';
+        document.getElementById('projects').value = '1';
+        document.getElementById('internships').value = '0';
+        document.getElementById('certifications').value = '0';
+        document.getElementById('stream').value = 'Mechanical';
+        document.getElementById('specialisation').value = 'Networking';
+        document.getElementById('college_tier').value = 'Tier 3';
+        document.getElementById('backlogs').value = 'Yes';
+    }
+}
+</script>
+{% endblock %}

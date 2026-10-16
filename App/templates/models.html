@@ -1,0 +1,358 @@
+{% extends "base.html" %}
+
+{% block title %}Models - Placement Prediction System{% endblock %}
+
+{% block content %}
+<style>
+    .models-container {
+        max-width: 1200px;
+        margin: 0 auto 60px auto;
+        padding: 0 1.5rem;
+    }
+
+    .models-header {
+        margin-bottom: 2.5rem;
+    }
+
+    .models-header h2 {
+        font-size: 2.25rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--text-primary);
+        margin-bottom: 0.4rem;
+    }
+
+    .models-header p {
+        color: var(--text-muted);
+        font-size: 1.05rem;
+    }
+
+    /* Section Headers */
+    .section-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 1.5rem;
+        margin-top: 2.5rem;
+    }
+
+    .section-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .section-avatar.cls {
+        background: #eef2ff;
+        color: #4f46e5;
+        border: 1px solid #c7d2fe;
+    }
+
+    .section-avatar.reg {
+        background: #ecfdf5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
+    }
+
+    .section-title-wrap h3 {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .section-title-wrap p {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        margin: 2px 0 0 0;
+    }
+
+    /* Interactive Benchmark Cards Grid */
+    .cards-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .metric-box {
+        background: #ffffff;
+        border: 1px solid var(--border-card);
+        border-radius: var(--radius-lg);
+        padding: 1.75rem;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition-base);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .metric-box:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--brand-border);
+    }
+
+    .metric-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+    }
+
+    .metric-box.acc::before { background: linear-gradient(90deg, #4f46e5, #818cf8); }
+    .metric-box.prec::before { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
+    .metric-box.rec::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .metric-box.f1::before { background: linear-gradient(90deg, #10b981, #34d399); }
+
+    .box-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .box-title {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+    }
+
+    .box-badge {
+        font-size: 0.75rem;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: 9999px;
+    }
+
+    .badge-green {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .badge-blue {
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+
+    .badge-amber {
+        background: #fef3c7;
+        color: #b45309;
+    }
+
+    .box-number {
+        font-size: 2.75rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1;
+        margin-bottom: 1.25rem;
+    }
+
+    .box-number.acc { color: #4f46e5; }
+    .box-number.prec { color: #0284c7; }
+    .box-number.rec { color: #d97706; }
+    .box-number.f1 { color: #059669; }
+
+    .progress-track {
+        height: 8px;
+        background: #f1f5f9;
+        border-radius: 9999px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        border-radius: 9999px;
+        transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .progress-bar.acc { background: linear-gradient(90deg, #4f46e5, #818cf8); }
+    .progress-bar.prec { background: linear-gradient(90deg, #0ea5e9, #38bdf8); }
+    .progress-bar.rec { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .progress-bar.f1 { background: linear-gradient(90deg, #10b981, #34d399); }
+
+    /* Comparison Table */
+    .table-container {
+        background: #ffffff;
+        border: 1px solid var(--border-card);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .table-container table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-container thead th {
+        background: #f8fafc;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-secondary);
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--border-subtle);
+        text-align: left;
+    }
+
+    .table-container tbody td {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid #f1f5f9;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .table-container tbody tr:hover td {
+        background: #f8fafc;
+    }
+
+    .pill-r2 {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+        font-weight: 800;
+    }
+
+    .pill-r2.good {
+        background: #dcfce7;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+    }
+
+    .pill-r2.avg {
+        background: #fef9c3;
+        color: #854d0e;
+        border: 1px solid #fef08a;
+    }
+</style>
+
+<div class="models-container">
+    <div class="models-header">
+        <h2>Trained Model Architectures & Performance</h2>
+        <p>Cross-validated evaluation benchmarks for classification and regression engines.</p>
+    </div>
+
+    <!-- ═══════════ CLASSIFICATION (LOGISTIC REGRESSION) ═══════════ -->
+    <div class="section-title-wrap">
+        <div class="section-avatar cls">🎯</div>
+        <div>
+            <h3>Logistic Regression Classifier</h3>
+            <p>Binary Classification — Target: PlacementStatus (Placed / Not Placed)</p>
+        </div>
+    </div>
+
+    {% if logistic_results %}
+    <div class="cards-row">
+        <!-- Accuracy -->
+        <div class="metric-box acc">
+            <div class="box-header">
+                <span class="box-title">Accuracy</span>
+                <span class="box-badge badge-green">Top Tier</span>
+            </div>
+            <div class="box-number acc">{{ logistic_results.accuracy }}<span style="font-size: 1.4rem;">%</span></div>
+            <div class="progress-track">
+                <div class="progress-bar acc" style="width: {{ logistic_results.accuracy }}%;"></div>
+            </div>
+        </div>
+
+        <!-- Precision -->
+        <div class="metric-box prec">
+            <div class="box-header">
+                <span class="box-title">Precision</span>
+                <span class="box-badge badge-blue">Low FP</span>
+            </div>
+            <div class="box-number prec">{{ logistic_results.precision }}<span style="font-size: 1.4rem;">%</span></div>
+            <div class="progress-track">
+                <div class="progress-bar prec" style="width: {{ logistic_results.precision }}%;"></div>
+            </div>
+        </div>
+
+        <!-- Recall -->
+        <div class="metric-box rec">
+            <div class="box-header">
+                <span class="box-title">Recall</span>
+                <span class="box-badge badge-amber">High Sensitivity</span>
+            </div>
+            <div class="box-number rec">{{ logistic_results.recall }}<span style="font-size: 1.4rem;">%</span></div>
+            <div class="progress-track">
+                <div class="progress-bar rec" style="width: {{ logistic_results.recall }}%;"></div>
+            </div>
+        </div>
+
+        <!-- F1 Score -->
+        <div class="metric-box f1">
+            <div class="box-header">
+                <span class="box-title">F1 Score</span>
+                <span class="box-badge badge-green">Optimal Balance</span>
+            </div>
+            <div class="box-number f1">{{ logistic_results.f1 }}<span style="font-size: 1.4rem;">%</span></div>
+            <div class="progress-track">
+                <div class="progress-bar f1" style="width: {{ logistic_results.f1 }}%;"></div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ═══════════ REGRESSION (SALARY PREDICTION) ═══════════ -->
+    <div class="section-title-wrap">
+        <div class="section-avatar reg">📈</div>
+        <div>
+            <h3>Linear & Regularized Regression Models</h3>
+            <p>Continuous Value Estimation — Target: Salary Package (₹ LPA)</p>
+        </div>
+    </div>
+
+    {% if linear_results %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Algorithm</th>
+                    <th>MAE (₹ LPA)</th>
+                    <th>MSE</th>
+                    <th>RMSE (₹ LPA)</th>
+                    <th>R² Score</th>
+                    <th>Evaluation Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for model in linear_results %}
+                <tr>
+                    <td style="font-weight: 700; color: var(--text-primary);">{{ model.name }}</td>
+                    <td>{{ model.mae }}</td>
+                    <td>{{ model.mse }}</td>
+                    <td style="font-weight: 600; color: #0284c7;">{{ model.rmse }}</td>
+                    <td>
+                        <span class="pill-r2 {% if model.r2 >= 70 %}good{% else %}avg{% endif %}">
+                            {{ model.r2 }}%
+                        </span>
+                    </td>
+                    <td>
+                        {% if loop.index0 == 1 %}
+                            <span style="color: #166534; font-weight: 700; font-size: 0.85rem;">★ Recommended Regularization</span>
+                        {% else %}
+                            <span style="color: #64748b; font-size: 0.85rem;">Verified Convergence</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

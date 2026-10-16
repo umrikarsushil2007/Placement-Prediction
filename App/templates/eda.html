@@ -1,79 +1,189 @@
 {% extends 'base.html' %}
 
+{% block title %}EDA - Placement Prediction System{% endblock %}
+
 {% block content %}
-<h2>Exploratory Data Analysis (EDA)</h2>
-
 <style>
-    /* Use CSS Grid for a strict 2-column layout */
-    .charts-container {
+    .eda-wrapper {
+        max-width: 1200px;
+        margin: 0 auto 60px auto;
+        padding: 0 1.5rem;
+    }
+
+    .eda-header {
+        margin-bottom: 2.5rem;
+    }
+
+    .eda-header h2 {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+        margin-bottom: 0.4rem;
+    }
+
+    .eda-header p {
+        color: var(--text-muted);
+        font-size: 1.05rem;
+    }
+
+    .charts-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr); /* Creates exactly 2 equal columns */
-        gap: 40px 30px; /* 40px gap between rows, 30px gap between columns */
-        margin-top: 30px;
+        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+        gap: 2rem;
     }
 
-    /* Make it responsive: switch to 1 column on smaller screens */
-    @media (max-width: 800px) {
-        .charts-container {
-            grid-template-columns: 1fr;
-        }
+    .chart-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-card);
+        border-radius: var(--radius-lg);
+        padding: 1.75rem;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition-base);
+        display: flex;
+        flex-direction: column;
     }
 
-    /* Styling for each individual chart block */
-    .chart-box {
-        text-align: center;
-        background-color: #fcfcfc; /* Optional: light background for the box */
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* Soft container shadow */
-
-        /* The entrance animation */
-        animation: fadeInUp 0.8s ease-out forwards;
-        opacity: 0;
+    .chart-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--brand-border);
     }
 
-    /* Styling the images themselves */
-    .chart-box img {
+    .chart-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .chart-card-top h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .chart-tag {
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 3px 10px;
+        border-radius: 9999px;
+        background: var(--brand-subtle);
+        color: var(--brand-primary);
+        border: 1px solid var(--brand-border);
+    }
+
+    .chart-img-wrap {
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        border: 1px solid var(--border-subtle);
+        background: #f8fafc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .chart-img-wrap img {
         width: 100%;
-        max-width: 600px;
-        border-radius: 8px;
-        transition: transform 0.3s ease-in-out;
+        height: auto;
+        display: block;
+        transition: transform 0.3s ease;
     }
 
-    /* Hover animation: slight zoom effect */
-    .chart-box img:hover {
-        transform: scale(1.03);
+    .chart-card:hover .chart-img-wrap img {
+        transform: scale(1.02);
     }
 
-    /* Entrance animation keyframes */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    .chart-caption {
+        font-size: 0.88rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        margin: 0;
     }
 </style>
 
-<div class="charts-container">
-
-    <div class="chart-box">
-        <h3>CGPA Histogram</h3>
-        <img src="{{ url_for('static', filename='charts/cgpa_histogram.png') }}" alt="CGPA Histogram">
-        <p>Visualizing Distribution of CGPA</p>
+<div class="eda-wrapper">
+    <div class="eda-header">
+        <h2>Exploratory Data Analysis (EDA)</h2>
+        <p>Statistical visualizations revealing feature correlations, variance distributions, and placement indicators.</p>
     </div>
 
-    <div class="chart-box">
-        <h3>CGPA vs Placement Status Box</h3>
-        <img src="{{ url_for('static', filename='charts/GGPA_PlacementStatus.png') }}" alt="CGPA Placement Box">
-        <p>Visualizing relation between CGPA and Placement Status</p>
+    <div class="charts-grid">
+        <!-- 1. CGPA Histogram -->
+        <div class="chart-card">
+            <div class="chart-card-top">
+                <h3>CGPA Distribution</h3>
+                <span class="chart-tag">Univariate</span>
+            </div>
+            <div class="chart-img-wrap">
+                <img src="{{ url_for('static', filename='charts/cgpa_histogram.png') }}" alt="CGPA Histogram">
+            </div>
+            <p class="chart-caption">Bell-curved distribution of student cumulative grade points, centered around 7.2 - 8.0 CGPA.</p>
+        </div>
+
+        <!-- 2. CGPA vs Placement Status -->
+        <div class="chart-card">
+            <div class="chart-card-top">
+                <h3>CGPA vs Placement Status</h3>
+                <span class="chart-tag">Bivariate</span>
+            </div>
+            <div class="chart-img-wrap">
+                <img src="{{ url_for('static', filename='charts/GGPA_PlacementStatus.png') }}" alt="CGPA Placement Boxplot">
+            </div>
+            <p class="chart-caption">Boxplot highlighting a significant academic threshold: placed candidates exhibit notably higher median CGPA.</p>
+        </div>
+
+        <!-- 3. Gender vs Placement -->
+        <div class="chart-card">
+            <div class="chart-card-top">
+                <h3>Gender vs Placement</h3>
+                <span class="chart-tag">Categorical</span>
+            </div>
+            <div class="chart-img-wrap">
+                <img src="{{ url_for('static', filename='charts/Gender_Placement.png') }}" alt="Gender vs Placement">
+            </div>
+            <p class="chart-caption">Crosstab comparison showing balanced placement conversion rates across both male and female candidate cohorts.</p>
+        </div>
+
+        <!-- 4. Scatter Plot -->
+        <div class="chart-card">
+            <div class="chart-card-top">
+                <h3>CGPA vs Aptitude Score</h3>
+                <span class="chart-tag">Correlation</span>
+            </div>
+            <div class="chart-img-wrap">
+                <img src="{{ url_for('static', filename='charts/scatter.png') }}" alt="Scatter Plot">
+            </div>
+            <p class="chart-caption">Scatter relationship illustrating how students with both strong academic standing and aptitude test scores maximize placement likelihood.</p>
+        </div>
+
+        <!-- 5. Correlation Heatmap (All) -->
+        <div class="chart-card">
+            <div class="chart-card-top">
+                <h3>Full Correlation Matrix</h3>
+                <span class="chart-tag">Multivariate</span>
+            </div>
+            <div class="chart-img-wrap">
+                <img src="{{ url_for('static', filename='charts/correlation_heatmap.png') }}" alt="Full Correlation Heatmap">
+            </div>
+            <p class="chart-caption">Full Pearson correlation matrix detailing inter-feature dependencies across all 32 numerical attributes.</p>
+        </div>
+
+        <!-- 6. Correlation Heatmap (Key) -->
+        <div class="chart-card">
+            <div class="chart-card-top">
+                <h3>Key Drivers Heatmap</h3>
+                <span class="chart-tag">High Impact</span>
+            </div>
+            <div class="chart-img-wrap">
+                <img src="{{ url_for('static', filename='charts/correlation_heatmap_3 attributes.png') }}" alt="Key Attributes Correlation">
+            </div>
+            <p class="chart-caption">Focused heatmap pinpointing the primary drivers: CGPA, Aptitude Test Score, and Placement Status.</p>
+        </div>
     </div>
-
-
-
 </div>
-
 {% endblock %}
